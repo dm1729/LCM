@@ -21,7 +21,7 @@ j<-1 # Counter to populate rows of M
 j<-j+1
 
 #TYPE 2 STRATA
-#|I|=1 
+#|I|=1  ROWS 2 to 9
 A<-combn(n,2) #TO ALLOW US TO LOOK UP U COORDINATE WITH PAIR
 A[1,]<-rev(A[1,])
 A[2,]<-rev(A[2,]) #TO GIVE ORDERING OF PAPER
@@ -52,7 +52,7 @@ for ( i in c(1:n) ){ #APPEARS TO BE WORKING
   }
 }
 
-#|I|=2 (different one)
+#|I|=2 (different one) ROWS 10-33 inclusive
 for (i in c(1:choose(n,2))){
   a <- A[1,i]
   b <- A[2,i]
@@ -85,7 +85,7 @@ for (i in c(1:choose(n,2))){
   }
 }
 
-#|I|>2 ROWS 34-81 - nothing populating! Now too much populating!
+#|I|>2 ROWS 34-81 inclusive - nothing populating! Now too much populating!
 for (I in c(3:n)){ # Set size of |I|
   for (i in c(1:choose(n,I)) ){# Subsets of size I (=|I|)
     S <-combn(n,I)[,i] #Gives the subset
@@ -110,6 +110,7 @@ for (I in c(3:n)){ # Set size of |I|
 }
 
 #TYPE 3 STRATA #CONDITIONAL INDEPENDECE GIVEN THIS VARIABLE
+#ROWS 82-85
 
 for (i in c(1:n))
 {
@@ -123,6 +124,7 @@ for (i in c(1:n))
 }
 
 #TYPE 4 STRATA #IMAGES OF THETA_ij (THETA_ab)
+#ROWS 86-91
 
 for (i in c(1:choose(n,2))){
   a <- A[1,i]
@@ -136,7 +138,7 @@ for (i in c(1:choose(n,2))){
     } #END LOOP OVER U
     j<- j+1 #MOVE TO NEXT STRATA BY ALTERING i or k
 }
-#TYPE 5 STRATA
+#TYPE 5 STRATA ROW 92
 M[j,] <- rep(1,length(U)*length(V)) # FULL INDEPENDENCE
 
 return(M)

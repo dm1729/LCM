@@ -128,7 +128,7 @@ LCMsolve <- function(y, p, control=list()) {
   dev <- 2*(lo - ll)
   rho <- MTP2ineqs(d)%*%subsetMatrix(d)%*%log(p)
   rho[rho<10e-8]<-0 #Gets rid of spurious nonzero
-  boundary<-which(rho==0)
+  boundary <- (rho==0)*1
   
   return(list(p=p, eta=eta, error=error, its=its, ll=ll, dev=dev,rho=rho,boundary=boundary))
 }
