@@ -53,7 +53,7 @@ MTP2ineqs <- function (d) {
 ##' @importFrom osqp osqp
 ##' 
 ##' @export MTP2solve
-LCMsolve <- function(y, p, control=list()) {
+FaceSolve <- function(y, z, p, control=list()) { #z==0 not allowed, for interior just use MTP2solve
   requireNamespace("CVXR", quietly = TRUE)
   
   n <- sum(y)
@@ -107,7 +107,7 @@ LCMsolve <- function(y, p, control=list()) {
         
     ## solve QP - try to speed this up!?
     obj <- Minimize(sum((C %*% (x-theta0))^2))
-    prob <- Problem(obj, constraints = list(D %*% x >= 0))
+    prob <- Problem(obj, constraints = list( (D %*% x) [which(z==1),1] == 0)) #z 'face vector' from LCMineqs
     result <- psolve(prob, abstol = con$tol)
     tmp <- c(result$getValue(x))
     
@@ -127,8 +127,38 @@ LCMsolve <- function(y, p, control=list()) {
   ll <- sum((y*log(p))[y > 0])
   dev <- 2*(lo - ll)
   rho <- MTP2ineqs(d)%*%subsetMatrix(d)%*%log(p)
-  rho[rho<10e-8]<-0 #Gets rid of spurious nonzero
+  rho[abs(rho)<1e-8]<-0 #Gets rid of spurious nonzero
   boundary <- (rho==0)*1
   
   return(list(p=p, eta=eta, error=error, its=its, ll=ll, dev=dev,rho=rho,boundary=boundary))
+}
+
+
+LCMsolve <- function(y){
+  d <- round(log2(length(y)))
+  M <- LCMineqs(d)
+  L <- length(M[,1])
+  #l <- 1
+  #while (l <= L & FR>2){
+  #  if (l==1){
+  #    p <- MTP2solve(y)$p
+  #    FR <- IsingIPS::FlatteningRank(p)
+  #  }
+    else{
+    z <- M[l,]
+    p <- FaceSolve(y,s)$p
+    # <- isSignedMTP2(p) #true/false
+    x <- TRUE
+    l <- l+1
+      if (x==TRUE){
+        FR <- IsingIPS::FlatteningRank(p)
+      }
+    }
+    
+  }
+if (FR==2){
+  return(p==p)
+}else{
+  return(list("Rank condition not satisfied", p==p, FR==FR))
+}
 }
