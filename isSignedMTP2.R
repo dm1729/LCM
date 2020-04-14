@@ -19,12 +19,12 @@ C <- IsingDesign(d)[1:2^(d-1),] #Only want half of them (never flipping)
 D <- c(1:(d-1))
 status=FALSE
 for (i in 2^{d-1}){ #Choose sign flip perm
-  if {status=FALSE}{
+  if (status==FALSE) {
   q <- p #reset to original input before flipping
-    for (j in D[C[,i]==-1]){ #Which things are we flipping
+    for (j in D[C[i,]==-1]){ #Which things are we flipping
       #FLIP
       q <- Shuffle(q,j)
-      status=all(MTP2ineqs(d)%*%subsetMatrix(d)%*%log(q)>=0) # check if flipped version is MTP2
+      status=all(MTP2ineqs(d)%*%subsetMatrix(d)%*%log(q)>=-1e-8) # check if flipped version is MTP2
     }
   }
 }

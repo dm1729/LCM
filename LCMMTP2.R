@@ -135,30 +135,28 @@ FaceSolve <- function(y, z, p, control=list()) { #z==0 not allowed, for interior
 
 
 LCMsolve <- function(y){
+  library(CVXR)
+  library(rje)
+  library(MLLPs)
+  library(IsingIPS)
   d <- round(log2(length(y)))
   M <- LCMineqs(d)
   L <- length(M[,1])
-  #l <- 1
-  #while (l <= L & FR>2){
-  #  if (l==1){
-  #    p <- MTP2solve(y)$p
-  #    FR <- IsingIPS::FlatteningRank(p)
-  #  }
-    else{
+  l <- 2 #Had some issues starting in interior and I think there's essentially no point.
+  FR <- "Unassigned"
+  while (l <= L & FR>2){
     z <- M[l,]
-    p <- FaceSolve(y,s)$p
-    # <- isSignedMTP2(p) #true/false
-    x <- TRUE
+    p <- FaceSolve(y,z)$p
+    x <- isSignedMTP2(p) #true/false
     l <- l+1
       if (x==TRUE){
         FR <- IsingIPS::FlatteningRank(p)
       }
-    }
     
-  }
-if (FR==2){
-  return(p==p)
+  } #end while
+if (FR<=2){
+  return(list("Rank condition satisfied",p=p,FR=FR))
 }else{
-  return(list("Rank condition not satisfied", p==p, FR==FR))
+  return(list("Rank condition not satisfied", p=p, FR=FR)) #This loop shouldn't need to exist
 }
 }

@@ -1,4 +1,4 @@
-Shuffle <- function(x,i){ #input vector of length 2^d, shuffles every 2^i things for i<d
+Shuffle <- function(x,i){ #input vector of length 2^d, shuffles every 2^i things for i<=d
 #e.g. (1,2,3,4,5,6,7,8) can do (2,1,4,3,6,5,8,7) or (3,4,1,2,7,8,5,6) or (5,6,7,8,1,2,3,4) (4,2 or 1 swap)
 d <- round(log2(length(x))) # can add error check that i<d
 y <- x

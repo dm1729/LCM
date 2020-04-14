@@ -88,7 +88,12 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
   #|I|>2 ROWS 34-81 inclusive - nothing populating! Now too much populating!
   for (I in c(3:n)){ # Set size of |I|
     for (i in c(1:choose(n,I)) ){# Subsets of size I (=|I|)
+      if (I==n){ #seemed to be getting issues because combn(n,n) is a vector not a matrix, so added this loop
+        S<-c(1:n) #Gives only subset of size n
+      }
+      else{
       S <-combn(n,I)[,i] #Gives the subset
+      }
       for (k in c(1:2^I)){
         s <- combinat::hcube(rep(2,I))[k,] #Gives pattern for vals of entries of I (in label order)
         for (u in U){
