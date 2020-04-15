@@ -151,12 +151,14 @@ LCMsolve <- function(y){
     l <- l+1
       if (x==TRUE){
         FR <- IsingIPS::FlatteningRank(p)
+        q<-p #avoid confusion (hopefully)
+        #L to be the upper bound of this dimension (remove FR>2 condition from while loop)
       }
     
   } #end while
 if (FR<=2){
-  return(list("Rank condition satisfied",p=p,FR=FR))
+  return(list("Rank condition satisfied",q=q,FR=FR,Strata=l))
 }else{
-  return(list("Rank condition not satisfied", p=p, FR=FR)) #This loop shouldn't need to exist
+  return(list("Rank condition not satisfied", q=q, FR=FR)) #This loop shouldn't need to exist
 }
 }

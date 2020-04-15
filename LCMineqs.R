@@ -20,7 +20,7 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
   #NO CHANGE TO FIRST ROW of M AS NO EXACT EQUALITIES
   j<-j+1
   
-  #TYPE 2 STRATA
+  #TYPE 2 STRATA of dimension 2n
   #|I|=1  ROWS 2 to 9
   A<-combn(n,2) #TO ALLOW US TO LOOK UP U COORDINATE WITH PAIR
   A[1,]<-rev(A[1,])
@@ -52,7 +52,7 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
     }
   }
   
-  #|I|=2 (different one) ROWS 10-33 inclusive
+  #|I|=2 (different one) ROWS 10-33 inclusive (dimension 2n-1)
   for (i in c(1:choose(n,2))){
     a <- A[1,i]
     b <- A[2,i]
@@ -85,7 +85,22 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
     }
   }
   
-  #|I|>2 ROWS 34-81 inclusive - nothing populating! Now too much populating!
+  
+  #TYPE 3 STRATA #CONDITIONAL INDEPENDECE GIVEN THIS VARIABLE (dimension 2n-1)
+  #ROWS 82-85
+  
+  for (i in c(1:n))
+  {
+    for (u in U){ #(Might be a cleaner way to do this, just want to set all 'columns' to 1 for all rows not including i)
+      if ( all(A[,u]!=i) ){
+        M[j,(2^(n-2)*(u-1)+1):(2^(n-2)*u)] <- 1
+      }
+      
+    }
+    j<-j+1
+  }
+  
+  #TYPE 2 STRATA |I|>2 ROWS 34-81 inclusive - nothing populating! Now too much populating! (dimensions 2n-2 to n+1, descending)
   for (I in c(3:n)){ # Set size of |I|
     for (i in c(1:choose(n,I)) ){# Subsets of size I (=|I|)
       if (I==n){ #seemed to be getting issues because combn(n,n) is a vector not a matrix, so added this loop
@@ -113,22 +128,9 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
       } #END LOOP OVER CHANGING CONDITIONING VALS
     }
   }
+
   
-  #TYPE 3 STRATA #CONDITIONAL INDEPENDECE GIVEN THIS VARIABLE
-  #ROWS 82-85
-  
-  for (i in c(1:n))
-  {
-    for (u in U){ #(Might be a cleaner way to do this, just want to set all 'columns' to 1 for all rows not including i)
-      if ( all(A[,u]!=i) ){
-        M[j,(2^(n-2)*(u-1)+1):(2^(n-2)*u)] <- 1
-      }
-      
-    }
-    j<-j+1
-  }
-  
-  #TYPE 4 STRATA #IMAGES OF THETA_ij (THETA_ab)
+  #TYPE 4 STRATA #IMAGES OF THETA_ij (THETA_ab) (dimension n+1)
   #ROWS 86-91
   
   for (i in c(1:choose(n,2))){
@@ -143,7 +145,7 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
     } #END LOOP OVER U
     j<- j+1 #MOVE TO NEXT STRATA BY ALTERING i or k
   }
-  #TYPE 5 STRATA ROW 92
+  #TYPE 5 STRATA ROW 92 (dimension n)
   M[j,] <- rep(1,length(U)*length(V)) # FULL INDEPENDENCE
   return(M)
 }
