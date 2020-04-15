@@ -134,31 +134,63 @@ FaceSolve <- function(y, z, p, control=list()) { #z==0 not allowed, for interior
 }
 
 
+Cutoff <- function(n){ #Gives cutoff points for different dimension strata in M_n
+  #n to 2n+1 inclusive = n+2 cutoffs. Vector has last strata number of that dimension
+  C <- rep(0,n+2)
+  C[1]=1 # Last dimension 2n+1 strata is interior
+  for (l in c(1:(n+1))){ #Using Corollary 10, dimension k = 2n + 1 - l (so C[1] for k=0, C[k+1] for k=k)
+    if (l==2){
+      C[l+1] <- C[l] + choose(n,l)*2^l + n
+    }
+    else if (l==n){
+      C[l+1] <- C[l] + choose(n,l)*2^l+ choose(n,2)
+    }
+    else if (l==n+1){
+      C[l+1] <- C[l] + 1
+    }
+    else{
+      C[l+1] <- C[l] + choose(n,l)*2^l #How many along from previous strata? Have extra if loop for adding in exceptional strata
+    }
+  }
+  return(C) #e.g. n=4 says strata 1 is last of 9, strata 9 for 8, strata 37 for 7, strata 69 for 6, strata 91 for 5, strata 92 for 4
+}
+
+
 LCMsolve <- function(y){
   library(CVXR)
   library(rje)
   library(MLLPs)
   library(IsingIPS)
+  library(Matrix)
   d <- round(log2(length(y)))
   M <- LCMineqs(d)
   L <- length(M[,1])
+  
+  P <- matrix(0,nrow=(L),ncol=(2^d+2))
+  
+  l <- 1
+  x <- isSignedMTP2(y/sum(y)) #Running facesolve unconstrained returns emperical dist.
+  if (x==TRUE){
+    P[l,1:2^d] <- y/sum(y) #Stores signed MTP2 dist
+    P[l,(2^d+1)] <- FlatteningRank(P[l,1:2^d]) #Stores associated flatteningrank Technically can exit here if LCM.
+    P[l,(2^d+2)] <- any(M[,]==( abs((MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]))[,1])<1e-8) )# Good pattern? BUGGED
+    }
+ 
   l <- 2 #Had some issues starting in interior and I think there's essentially no point.
-  FR <- "Unassigned"
-  while (l <= L & FR>2){
+ 
+  while (l <= L){
     z <- M[l,]
     p <- FaceSolve(y,z)$p
     x <- isSignedMTP2(p) #true/false
-    l <- l+1
       if (x==TRUE){
-        FR <- IsingIPS::FlatteningRank(p)
-        q<-p #avoid confusion (hopefully)
-        #L to be the upper bound of this dimension (remove FR>2 condition from while loop)
+        P[l,1:2^d] <- p #Stores signed MTP2 dist
+        P[l,(2^d+1)] <- FlatteningRank(P[l,1:2^d]) #Stores associated flatteningrank
+        P[l,(2^d+2)] <- any(M[,]==( abs((MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]))[,1])<1e-8) ) #Good pattern?
+        if (P[l,(2^d+1)] <= 2){#L to be the upper bound of this dimension if a FR 2 estimate has been found.
+        L <- Cutoff(d)[which(Cutoff(d)>=l)[1]] # use >= because if we are already on last strata of dimension we stop.
+        }
       }
-    
+    l <- l+1
   } #end while
-if (FR<=2){
-  return(list("Rank condition satisfied",q=q,FR=FR,Strata=l))
-}else{
-  return(list("Rank condition not satisfied", q=q, FR=FR)) #This loop shouldn't need to exist
-}
+  return(list(PMFs=P[1:L,],Strata=(l-1))) #Strata l-1 because the final one won't be looped over.
 }
