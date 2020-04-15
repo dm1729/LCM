@@ -60,6 +60,7 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
       s <- combinat::hcube(rep(2,2))[k,] #Gives pattern for vals of entries of I (in label order)
       for (u in U){
         if (u!= i){ #Only pair to exclude is one with both (Had to pick a and b in reverse order to make work)
+          #Do not update u=i as this corresponds to interaction between a,b which can be nonzero for theta_{ab} parameter
           if ( any(A[,u]==a) ){ #Does chosen pair (number u) contain a?
             C <- which(c(1:n)[-A[,u]]==b) # a excluded, gives position of b in remainder
             for (v in V){
@@ -75,9 +76,6 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
                 M[j,2^(n-2)*(u-1)+v] <- 1
               }
             }
-          } #PROBLEM IN ELSE LOOP
-          else{ #Chosen pair u contains neither a nor b so we have full conditional independence (Image of Theta_{ij})
-            M[j,(2^(n-2)*(u-1)+1):(2^(n-2)*u)] <- 1
           }
         }
       } #END LOOP OVER U
@@ -137,11 +135,10 @@ LCMineqs <- function (n){ #based on https://arxiv.org/pdf/1710.01696.pdf and htt
     a <- A[1,i]
     b <- A[2,i]
     for (u in U){
-      if (u!= i){ #Only pair to exclude is one with both
-        if ( all(A[,u]!=a) & all(A[,u]!=b) ){ #Chosen pair u contains neither a nor b so we have full conditional independence (Image of Theta_{ij})
+      if (u!= i){ #Only pair to exclude is one with both UPDATED TO BE CORRECT
           M[j,(2^(n-2)*(u-1)+1):(2^(n-2)*u)] <- 1
         }
-      }
+      
     } #END LOOP OVER U
     j<- j+1 #MOVE TO NEXT STRATA BY ALTERING i or k
   }

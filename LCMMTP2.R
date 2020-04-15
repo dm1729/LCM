@@ -173,7 +173,8 @@ LCMsolve <- function(y){
   if (x==TRUE){
     P[l,1:2^d] <- y/sum(y) #Stores signed MTP2 dist
     P[l,(2^d+1)] <- FlatteningRank(P[l,1:2^d]) #Stores associated flatteningrank Technically can exit here if LCM.
-    P[l,(2^d+2)] <- any(M[,]==( abs((MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]))[,1])<1e-8) )# Good pattern? BUGGED
+    v <- ( abs( ( MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]) )[,1] ) <1e-8 ) #Gives sign pattern of p in form of M matrix
+    P[l,(2^d+2)] <- any ( apply( t(M) == v , 2, all ) ) #Good pattern?
     }
  
   l <- 2 #Had some issues starting in interior and I think there's essentially no point.
@@ -185,7 +186,8 @@ LCMsolve <- function(y){
       if (x==TRUE){
         P[l,1:2^d] <- p #Stores signed MTP2 dist
         P[l,(2^d+1)] <- FlatteningRank(P[l,1:2^d]) #Stores associated flatteningrank
-        P[l,(2^d+2)] <- any(M[,]==( abs((MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]))[,1])<1e-8) ) #Good pattern?
+        v <- ( abs( ( MTP2ineqs(d)%*%subsetMatrix(d)%*%log(P[l,1:2^d]) )[,1] ) <1e-8 ) #Gives sign pattern of p in form of M matrix
+        P[l,(2^d+2)] <- any ( apply( t(M) == v , 2, all ) ) #Good pattern?
         if (P[l,(2^d+1)] <= 2){#L to be the upper bound of this dimension if a FR 2 estimate has been found.
         L <- Cutoff(d)[which(Cutoff(d)>=l)[1]] # use >= because if we are already on last strata of dimension we stop.
         }
