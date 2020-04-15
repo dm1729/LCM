@@ -1,0 +1,13 @@
+#Simulations.R
+set.seed(1)
+x1<-rje::rdirichlet(1,rep(1,16))[1,]
+LCMsolve(x1)
+set.seed(2)
+x2<-rje::rdirichlet(1,rep(1,16))[1,]
+LCMsolve(x2)
+set.seed(3)
+x3<-rje::rdirichlet(1,rep(1,16))[1,]
+LCMsolve(x3)
+set.seed(4)
+x3<-rje::rdirichlet(1,rep(1,32))[1,]
+out5<-LCMsolve(x3)
